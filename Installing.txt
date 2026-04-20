@@ -1,0 +1,87 @@
+https://github.com/mramsudheer/roboshop-infra-eks.git
+
+
+------------------------ DISK RESIZE------------------------ 
+
+df -hT
+vgs - To see total Unallocated space
+lvs - Each partition size
+lsblk
+sudo growpart /dev/nvme0n1 4
+sudo lvextend -L +30G /dev/RootVG/varVol
+sudo xfs_growfs /
+sudo xfs_growfs /var
+---------------------------------------------------------------------------------------
+sudo dnf install git -y
+
+# Install ansible
+sudo dnf install ansible -y
+pip3.9 install netaddr
+pip3 install boto3 botocore
+
+# Install terraform
+sudo dnf config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+sudo dnf -y install terraform
+
+# ---  FIXED AWS CLI INSTALLATION ---
+# Corrected URL: awscli.amazonaws.com
+curl "https://amazonaws.com" -o "awscliv2.zip"
+sudo dnf install unzip -y
+unzip awscliv2.zip
+sudo ./aws/install
+sudo ln -s /usr/local/bin/aws /usr/bin/aws
+------------------------ DOCKER INSTALLATION------------------------
+
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
+logout and login again
+
+#TO DOWNLOAD THE CORRECT VERSION OF EKSCTL (THE OFFICIAL CLI FOR AMAZON EKS)
+FOR YOUR SPECIFIC OS AND PROCESSOR
+
+# for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
+ARCH=amd64
+PLATFORM=$(uname -s)_$ARCH
+curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_$PLATFORM.tar.gz"
+
+# (Optional) Verify checksum
+curl -sL "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_checksums.txt" | grep $PLATFORM | sha256sum --check
+tar -xzf eksctl_$PLATFORM.tar.gz -C /tmp && rm eksctl_$PLATFORM.tar.gz
+sudo install -m 0755 /tmp/eksctl /usr/local/bin && rm /tmp/eksctl
+eksctl version
+
+------------------------INSTALLING KUBECTL------------------------
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.35.2/2026-02-27/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+
+kubectl version --client
+aws sts get-caller-identity
+
+------------------------INSTALLING TERRAGRUNT -----------------------------
+wget https://github.com/gruntwork-io/terragrunt/releases/download/v1.0.0/terragrunt_linux_386
+mv terragrunt_linux_386 terragrunt
+chmod u+x terragrunt
+sudo mv terragrunt /usr/local/bin/terragrunt
+terragrunt --version
+
+
+-------------------------------------------------------------
+
+When we run terragrunt int or apply, terragraunt will generates one 'terragraunt-cache'
+folder under infrastructure-live\dev\vpc in that it will gererate provider.tf,
+backend.tf, output.tf, main.tf
+
+In root.hcl we declared  key = "${path_relative_to_include()}/terraform.tfstate"
+what happens is when we run terragraunt apply, in the give S3 bucket it will
+create terraform.tfstate file under <s3 bucket>/dev/vpc/
+we are running terragraunt apply in /dev/vpc/ so that is used as a key
+Like this it will create a saperate tfstate file for each folder(vpc,subnet...)
+
+IF you want to deploy the same code for prod. Just copy the terragrunt.hcl file
+from dev/vpc to prod/vpc and change the input values.
+
