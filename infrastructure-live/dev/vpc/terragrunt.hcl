@@ -4,7 +4,7 @@ include "root"{
   path = find_in_parent_folders("root.hcl") # this will look for root.hcl file in parent folders and include it in this configuration.
 }
 terraform{
-    source = "../../../infrastructure-modules/vpc"
+    source = "../../../terraform-modules/vpc"
 }
 
 # inputs block, we are passing the values for the variables defined in the module.
