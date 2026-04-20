@@ -23,11 +23,11 @@ resource "aws_ssm_parameter" "database_subnet_ids" {
 }
 
 # Ensure you have created this resource in main.tf first!
-resource "aws_ssm_parameter" "database_subnet_group_name" {
-  name  = "/${var.project}/${var.environment}/database_subnet_group_name"
-  type  = "String"
-  value = aws_db_subnet_group.default[0].name 
-}
+# resource "aws_ssm_parameter" "database_subnet_group_name" {
+#   name  = "/${var.project}/${var.environment}/database_subnet_group_name"
+#   type  = "String"
+#   value = aws_db_subnet_group.default[0].name 
+# }
 resource "aws_ssm_parameter" "igw_id" {
   name  = "/${var.project}/${var.environment}/igw_id"
   type  = "String"
