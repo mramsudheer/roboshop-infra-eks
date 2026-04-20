@@ -32,8 +32,8 @@ output "nat_eip_public_ip" { #Eg: 54.1.2.3
   # This returns the IP if created, or an empty string if skipped.
   value = join("", aws_eip.nat[*].public_ip)
 }
-output "project_name" {
-  value = var.project_name
+output "project" {
+  value = var.project
 }
 output "environment" {
   value = var.environment

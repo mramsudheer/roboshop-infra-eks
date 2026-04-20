@@ -4,7 +4,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags = merge(var.common_tags, {
-    Name = "${var.project_name}-${var.environment}-vpc"
+    Name = "${var.project}-${var.environment}-vpc"
   })
   # lifecycle {
   #   prevent_destroy = true
@@ -18,7 +18,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true
 
   tags = merge(var.common_tags, {
-    Name = "${var.project_name}-${var.environment}-public-subnet-${count.index}"
+    Name = "${var.project}-${var.environment}-public-subnet-${count.index}"
   })
   # lifecycle {
   #   prevent_destroy = true
@@ -31,7 +31,7 @@ resource "aws_subnet" "private" {
   availability_zone = var.azs[count.index]
 
   tags = merge(var.common_tags, {
-    Name = "${var.project_name}-${var.environment}-private-subnet-${count.index}"
+    Name = "${var.project}-${var.environment}-private-subnet-${count.index}"
   })
   # lifecycle {
   #   prevent_destroy = true
@@ -44,7 +44,7 @@ resource "aws_subnet" "database" {
   availability_zone = var.azs[count.index]
 
   tags = merge(var.common_tags, {
-    Name = "${var.project_name}-${var.environment}-database-subnet-${count.index}"
+    Name = "${var.project}-${var.environment}-database-subnet-${count.index}"
   })
   # lifecycle {
   #   prevent_destroy = true
@@ -54,7 +54,7 @@ resource "aws_subnet" "database" {
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
   tags = merge(var.common_tags, {
-    Name = "${var.project_name}-${var.environment}-igw"
+    Name = "${var.project}-${var.environment}-igw"
   })
 }
 # Public Route tables
@@ -65,7 +65,7 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.igw.id
     #Gateway = aws_internet_gateway.igw.id
   }
-  tags = merge(var.common_tags, { Name = "${var.project_name}-${var.environment}-public-rt" })
+  tags = merge(var.common_tags, { Name = "${var.project}-${var.environment}-public-rt" })
   # lifecycle {
   #   prevent_destroy = true
   # }
@@ -87,7 +87,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_eip" "nat" {
   count  = (var.nat_gateway_enable && var.static_ip == "") ? 1 : 0 #Executes only NATGateway is required
   domain = "vpc"
-  tags   = merge(var.common_tags, { Name = "${var.project_name}-${var.environment}-nat-eip" })
+  tags   = merge(var.common_tags, { Name = "${var.project}-${var.environment}-nat-eip" })
 }
 # NATGateway
 resource "aws_nat_gateway" "main" {
@@ -99,7 +99,7 @@ resource "aws_nat_gateway" "main" {
   # Otherwise, use the EIP created by the module.
   #allocation_id = can(regex("^eipalloc-", var.static_ip)) ? var.static_ip : aws_eip.nat[0].id
   subnet_id     = aws_subnet.public[0].id # NAT must sit in a Public Subnet
-  tags          = merge(var.common_tags, { Name = "${var.project_name}-${var.environment}-nat" })
+  tags          = merge(var.common_tags, { Name = "${var.project}-${var.environment}-nat" })
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
   depends_on = [aws_internet_gateway.igw]
@@ -119,7 +119,7 @@ resource "aws_route_table" "private" {
       nat_gateway_id = aws_nat_gateway.main[0].id
     }
   }
-  tags = merge(var.common_tags, { Name = "${var.project_name}-${var.environment}-private-rt" })
+  tags = merge(var.common_tags, { Name = "${var.project}-${var.environment}-private-rt" })
   # lifecycle {
   #   prevent_destroy = true
   # }
@@ -152,7 +152,7 @@ resource "aws_route_table" "database" {
       nat_gateway_id = aws_nat_gateway.main[0].id
     }
   }
-  tags = merge(var.common_tags, { Name = "${var.project_name}-${var.environment}-database-rt" })
+  tags = merge(var.common_tags, { Name = "${var.project}-${var.environment}-database-rt" })
   # lifecycle {
   #   prevent_destroy = true
   # }

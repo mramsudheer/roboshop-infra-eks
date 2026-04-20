@@ -31,13 +31,13 @@ variable "static_ip" {
   description = "Optional: Existing Static IP"
   default     = ""
 }
-variable "project_name" {
+variable "project" {
   type = string
 }
 variable "environment" {
   type = string
   validation {
-    condition = contains(["dev", "qa", "uat", "prod"],var.environemnt)
+    condition = contains(["dev", "qa", "uat", "prod"],var.environment)
      error_message = "Environments should be one of dev, qa, uat or prod"
   }
 }

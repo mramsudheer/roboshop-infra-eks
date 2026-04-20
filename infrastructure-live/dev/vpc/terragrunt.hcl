@@ -22,7 +22,7 @@ nat_gateway_enable = false
 static_ip          = ""
 environment        = "dev"
 
-project_name = "Roboshop"
+project = "Roboshop"
 common_tags = {
   Environment = "dev"
   Terraform   = "true"
