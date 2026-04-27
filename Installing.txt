@@ -1,6 +1,8 @@
 https://github.com/mramsudheer/roboshop-infra-eks.git
 
-
+IF YOU ARE UNABE TO SEE THE LATEST CHANGES AFTER GIT pull
+git fetch origin
+git reset --hard origin/main
 ------------------------ DISK RESIZE------------------------ 
 
 df -hT
